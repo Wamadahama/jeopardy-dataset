@@ -23,3 +23,4 @@ $ python generate_dataset.py
 ## TODO
 * Final jeopardy
 * command line arguments for the scraper
+* Write to info file 
