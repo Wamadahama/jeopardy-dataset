@@ -10,7 +10,7 @@ Dataset containing all recorded jeopardy games on the ![j-archive](http://www.j-
 ## Fields
 * Category
 * Value
-* Order
+* Order - The order that the question was selected during the game 
 * Question
 * Answer 
 
@@ -23,3 +23,9 @@ $ python generate_dataset.py
 ## TODO
 * Final jeopardy
 * command line arguments for the scraper
+* ~~Write to info file~~
+* date field 
+
+## Reducing time it takes to scrape
+* ensure persistent HTTP connection 
+* multi threading?

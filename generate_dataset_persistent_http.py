@@ -47,13 +47,14 @@ def episodes_to_csv(tuple_set):
     with open(DATASET_FILE, 'w', newline='') as dataset_file:
         writer = csv.writer(dataset_file, delimiter=',')
         writer.writerow(["Category", "Value", "Order", "Question", "Answer"])
-        i = 0
+		i = 0 
         for tpl in tuple_set:
             try:
                 writer.writerow(tpl)
             except UnicodeEncodeError:
                 print("encoding error at {}".format(str(i))) 
                 continue
+			i+=1
 
 def scrape_table(table_dom):
 
@@ -91,33 +92,35 @@ def scrape_table(table_dom):
 
     return list(zip(categories_full, values, orders, questions, answers))
 
-def scrape_episode(id):
+def scrape_episode(id, session):
     # id = jeopardy_round
-    first_round = BeautifulSoup(get_page(GAME_PAGE_URL + str(id)), 'html.parser').find(id='jeopardy_round')
-
+    first_round = BeautifulSoup(session.get(GAME_PAGE_URL + str(id)).text, 'html.parser').find(id='jeopardy_round')
+    
     if first_round is None:
         return []
-
+    
     first_round = scrape_table(first_round.table)
-
-    second_round = BeautifulSoup(get_page(GAME_PAGE_URL + str(id)), 'html.parser').find(id = 'double_jeopardy_round')
-
+    
+    second_round = BeautifulSoup(session.get(GAME_PAGE_URL + str(id)).text, 'html.parser').find(id = 'double_jeopardy_round')
+    
     if second_round is None:
         return [] 
 
     second_round = scrape_table(second_round.table)
-
+    
     final_set = sorted(list(itertools.chain(*[first_round, second_round])),key = lambda x: x[0])
     return final_set
 
 def scrape_all(latest_id = 0, dataset_file = DATASET_FILE, metadata_file = METADATA_FILE):
-    print("Starting j-archive scrape, latest game id = {}".format(latest_id))
-    episodes = []
-    for i in range(1, latest_id):
-        print("\r Scraping {} [{}/{}]".format(GAME_PAGE_URL + str(i) , str(i), str(latest_id)), end="")
-        episodes.append(scrape_episode(i))
 
-    episodes_to_csv(list(itertools.chain(*episodes)))
+    with requests.Session() as session:
+        print("Starting j-archive scrape, latest game id = {}".format(latest_id))
+        episodes = []
+
+        for i in range(1, latest_id):
+            print("\r Scraping {} [{}/{}]".format(GAME_PAGE_URL + str(i) , str(i), str(latest_id)), end="")
+            episodes.append(scrape_episode(i, session))
+            episodes_to_csv(list(itertools.chain(*episodes)))
 
 def main_2():
     last_id, _ = read_metadata()
