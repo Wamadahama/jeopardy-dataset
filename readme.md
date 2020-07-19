@@ -26,6 +26,7 @@ $ python generate_dataset.py
 * ~~Write to info file~~
 * date field 
 
-## Reducing time it takes to scrape
-* ensure persistent HTTP connection 
+## Reducing scraping time 
+* ~persistent HTTP connection~ 
 * multi threading?
+
